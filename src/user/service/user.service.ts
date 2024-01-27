@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Observable, from, map, switchMap } from 'rxjs';
+import { Observable, catchError, from, map, switchMap, throwError } from 'rxjs';
+import { AuthService } from 'src/auth/service/auth.service';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../model/user.entity';
 import { User } from '../model/user.interface';
@@ -11,10 +12,26 @@ export class UserService {
     //Inyectar el repositorio de users de la BBDD
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private authService: AuthService,
   ) {}
 
   create(user: User): Observable<User> {
-    return from(this.userRepository.save(user));
+    return this.authService.hashPassword(user.password).pipe(
+      switchMap((passwordHash: string) => {
+        const newUser = new UserEntity();
+        newUser.name = user.name;
+        newUser.email = user.email;
+        newUser.password = passwordHash;
+
+        return from(this.userRepository.save(newUser)).pipe(
+          map((user: User) => {
+            const { password, ...result } = user;
+            return result;
+          }),
+          catchError((err) => throwError(() => err)),
+        );
+      }),
+    );
   }
 
   findAll(): Observable<User[]> {
