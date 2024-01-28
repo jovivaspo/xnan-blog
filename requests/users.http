@@ -1,5 +1,6 @@
 ###
-GET http://localhost:3000/api/user
+GET http://localhost:3000/api/user?page=1&limit=10
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjo2LCJuYW1lIjoiQWRtaW4iLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSJ9LCJpYXQiOjE3MDY0NDI2MTYsImV4cCI6MjEzODQ0MjYxNn0.kQjMAQ_ikY9zUR6CIgOm_3hnBI8ku3Hpx4jKclB4hAk
 
 ###
 POST http://localhost:3000/api/user
@@ -9,6 +10,16 @@ Content-Type: application/json
     "name": "Jorge",
     "email": "test@gmail.com",
     "password": "12345"
+}
+
+###
+POST http://localhost:3000/api/user
+Content-Type: application/json
+
+{
+    "name": "Admin",
+    "email": "admin@gmail.com",
+    "password": "admin"
 }
 
 
@@ -25,3 +36,38 @@ Content-Type: application/json
 
 ###
 DELETE  http://localhost:3000/api/user/2
+
+###
+POST http://localhost:3000/api/user/email
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjo2LCJuYW1lIjoiQWRtaW4iLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSJ9LCJpYXQiOjE3MDY0NDAwMjYsImV4cCI6MjEzODQ0MDAyNn0.TUjVPlt8r0UuZseeIO421CSz-rj_iHt8Adq5fBMraIc
+
+{
+    "email": "test@gmail.com"
+}
+
+###
+PUT http://localhost:3000/api/user/3/role
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjo2LCJuYW1lIjoiQWRtaW4iLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSJ9LCJpYXQiOjE3MDY0NDAwMjYsImV4cCI6MjEzODQ0MDAyNn0.TUjVPlt8r0UuZseeIO421CSz-rj_iHt8Adq5fBMraIc
+
+{
+    "role": "editor"
+}
+
+###
+PUT http://localhost:3000/api/user/3
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjozLCJuYW1lIjoiSm9yZ2UiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIn0sImlhdCI6MTcwNjQ0MjcwNywiZXhwIjoyMTM4NDQyNzA3fQ.oHvdVGBCmfYNeWps_h8huBXbzSUoXKmjsVH2cd7YZo0
+
+{
+  "name": "Jorge Vivas"
+}
+
+####
+POST http://localhost:3000/api/user/exist
+Content-Type: application/json
+
+{
+    "email": "test@gmail.com"
+}

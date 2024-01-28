@@ -15,7 +15,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  private validateUser(email: string, password: string): Observable<User> {
+  validateUser(email: string, password: string): Observable<User> {
     return from(
       this.findByEmail(email).pipe(
         switchMap((user: User) => {
