@@ -1,19 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   IPaginationOptions,
   Pagination,
   paginate,
 } from 'nestjs-typeorm-paginate';
-import {
-  Observable,
-  catchError,
-  from,
-  map,
-  of,
-  switchMap,
-  throwError,
-} from 'rxjs';
+import { Observable, catchError, from, map, switchMap, throwError } from 'rxjs';
 import { AuthService } from 'src/auth/service/auth.service';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../model/user.entity';
@@ -146,7 +138,7 @@ export class UserService {
 
   updateRoleOfUser(id: number, user: User): Observable<any> {
     if (!user.role || !Object.values(UserRole).includes(user.role)) {
-      return of({ error: 'Invalid role' });
+      throw new BadRequestException('Role is not valid');
     }
     delete user.email;
     delete user.password;

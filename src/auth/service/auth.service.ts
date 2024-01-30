@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -25,7 +29,7 @@ export class AuthService {
                 const { password, ...result } = user;
                 return result;
               } else {
-                throw Error;
+                throw new UnauthorizedException('Wrong password');
               }
             }),
           );
@@ -44,10 +48,18 @@ export class AuthService {
 
   private findByEmail(email: string): Observable<User> {
     return from(
-      this.userRepository.findOne({
-        where: { email: email },
-        select: ['id', 'name', 'email', 'password'],
-      }),
+      this.userRepository
+        .findOne({
+          where: { email: email.toLocaleLowerCase() },
+          select: ['id', 'name', 'email', 'password'],
+        })
+        .then((user: User) => {
+          if (user) {
+            return user;
+          } else {
+            throw new NotFoundException('User not found');
+          }
+        }),
     );
   }
 
@@ -62,11 +74,7 @@ export class AuthService {
   login(user: User): Observable<string> {
     return this.validateUser(user.email, user.password).pipe(
       switchMap((user: User) => {
-        if (user) {
-          return this.generateJWT(user).pipe(map((jwt: string) => jwt));
-        } else {
-          return 'Wrong credentials';
-        }
+        return this.generateJWT(user).pipe(map((jwt: string) => jwt));
       }),
     );
   }

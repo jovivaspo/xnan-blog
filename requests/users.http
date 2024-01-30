@@ -1,6 +1,6 @@
 ###
 GET http://localhost:3000/api/user?page=1&limit=10
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjo2LCJuYW1lIjoiQWRtaW4iLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSJ9LCJpYXQiOjE3MDY0NDI2MTYsImV4cCI6MjEzODQ0MjYxNn0.kQjMAQ_ikY9zUR6CIgOm_3hnBI8ku3Hpx4jKclB4hAk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjo2LCJuYW1lIjoiQWRtaW4iLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSJ9LCJpYXQiOjE3MDY2MzM0NTQsImV4cCI6MjEzODYzMzQ1NH0.TIit0A2PaMnxxy3iCpstjXZ_umGC25xSrWKvuIhqcvA
 
 ###
 POST http://localhost:3000/api/user
