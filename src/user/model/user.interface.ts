@@ -4,6 +4,7 @@ export interface User {
   email?: string;
   password?: string;
   role?: UserRole;
+  profileImage?: string;
 }
 
 export enum UserRole {
@@ -11,4 +12,8 @@ export enum UserRole {
   USER = 'user',
   EDITOR = 'editor',
   CHIEFEDITOR = 'chiefeditor',
+}
+
+export interface File {
+  profileImage: string;
 }

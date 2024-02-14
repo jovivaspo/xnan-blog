@@ -7,17 +7,36 @@ import {
   Post,
   Put,
   Query,
+  Request,
+  Response,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable, catchError, map, of, tap } from 'rxjs';
 import { hasRoles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserIsUserGuard } from 'src/auth/guards/userIsUser.guard';
-import { User, UserRole } from '../model/user.interface';
+import { v4 as uuidv4 } from 'uuid';
+import { File, User, UserRole } from '../model/user.interface';
 import { UserService } from '../service/user.service';
+import path = require('path');
 
+export const storage = {
+  storage: diskStorage({
+    destination: './uploads/profileImages',
+    filename: (req, file, cb) => {
+      const filename: string =
+        path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
+      const extension: string = path.parse(file.originalname).ext;
+      cb(null, `${filename}${extension}`);
+    },
+  }),
+};
 @Controller('user')
 export class UserController {
   constructor(private UserService: UserService) {}
@@ -48,6 +67,22 @@ export class UserController {
     return this.UserService.updatePassword(Number(id), user);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', storage))
+  uploadFile(@UploadedFile() file, @Request() req): Observable<File> {
+    const user: User = req.user.user;
+
+    console.log('#### file name: ', file.filename);
+
+    return this.UserService.updateOne(user.id, {
+      profileImage: file.filename,
+    }).pipe(
+      tap((user: User) => console.log(user)),
+      map((user: User) => ({ profileImage: user.profileImage })),
+    );
+  }
+
   @hasRoles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
@@ -68,15 +103,27 @@ export class UserController {
   index(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @Query('name') name: string,
   ): Observable<Pagination<User>> {
     limit = limit > 100 ? 100 : limit;
 
     const route = `${process.env.API_URL}:${process.env.API_PORT}/user`;
-    return this.UserService.paginate({
-      page: Number(page),
-      limit: Number(limit),
-      route,
-    });
+    if (name === null || name === undefined) {
+      return this.UserService.paginate({
+        page: Number(page),
+        limit: Number(limit),
+        route,
+      });
+    } else {
+      return this.UserService.paginateByName(
+        {
+          page: Number(page),
+          limit: Number(limit),
+          route,
+        },
+        { name },
+      );
+    }
   }
 
   @hasRoles(UserRole.ADMIN)
@@ -99,5 +146,17 @@ export class UserController {
   @Post('exist')
   emailExist(@Body() user: User): Observable<boolean> {
     return this.UserService.emailExist(user);
+  }
+
+  @Get('profileImage/:imageName')
+  findProfileImage(
+    @Param('imageName') imageName: string,
+    @Response() res,
+  ): Observable<any> {
+    return of(
+      res.sendFile(
+        path.join(process.cwd(), 'uploads/profileImages', imageName),
+      ),
+    );
   }
 }
